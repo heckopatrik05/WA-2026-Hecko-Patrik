@@ -3,7 +3,47 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+h1 {
+    font-size: 36px;
+}
+
+h1, h2 {
+    color: blueviolet;
+}
+
 p {
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: large;
+}
+
+header, footer {
+    background-color: lightgray;
+    padding: 20px;
+    text-align: center;
+    padding: 1rem;
+}
+
+footer p {
+    background-color: gray;
+}
+
+.page-wrapper {
+    width: 80%; 
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.cards-container {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 20px;
+}
+
+.card {
+    background-color: white;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 0.7rem;
+    border: dashed 2px black;
 }
