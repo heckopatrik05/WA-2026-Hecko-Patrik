@@ -33,6 +33,16 @@ footer p {
     padding: 20px;
 }
 
+nav a {
+    text-decoration: none;
+    color: black;
+    margin: 0 10px;
+    background-color: lightblue;
+
+    border-radius: 5px;
+}
+
+
 .cards-container {
     display: grid;
     grid-template-columns: auto auto;
