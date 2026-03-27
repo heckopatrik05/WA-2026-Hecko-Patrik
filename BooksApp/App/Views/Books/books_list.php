@@ -13,8 +13,8 @@
         <nav>
             <ul>
                 <!-- Poznámka: do odkazu href se musí dát reálná absolutní/úplná cesta k souboru index.php -->
-                <li><a href="<?= BASE_URL ?>/index.php/">Seznam knih (Domů)</a></li>
-                <li><a href="<?= BASE_URL ?>/index.php?url=book/create/">Přidat novou knihu</a></li>
+                <li><a href="<?= BASE_URL ?>/index.php">Seznam knih (Domů)</a></li>
+                <li><a href="<?= BASE_URL ?>/index.php?url=book/create">Přidat novou knihu</a></li>
             </ul>
         </nav>
     </header>
