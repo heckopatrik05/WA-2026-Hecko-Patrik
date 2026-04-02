@@ -14,7 +14,7 @@
         </div>
         
         <div>
-            <form action="/WA-2026-Hecko-Patrik/BooksApp/public/index.php?url=book/store" method="post" enctype="multipart/form-data">
+            <form action="<?= BASE_URL ?>/index.php?url=book/store" method="post" enctype="multipart/form-data">
                 <div>
                     <div>
                         <label for="title">Název knihy <span>*</span></label>
