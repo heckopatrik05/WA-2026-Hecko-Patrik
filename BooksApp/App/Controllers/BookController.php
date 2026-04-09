@@ -47,7 +47,9 @@ class BookController {
             $description = htmlspecialchars($_POST['description'] ?? '');
 
             // Prozatímní zástupce pro obrázky (bude řešeno v budoucnu)
-            $uploadedImages = []; 
+            // ZDE JE ZMĚNA: Zavolání metody, která zpracuje soubory v $_FILES
+            // Vrátí nám hezké pole s novými názvy (např. ['book_123.jpg', 'book_456.png'])
+            $uploadedImages = $this->processImageUploads();
 
             // 2. Komunikace s databází a modelem
             require_once '../app/models/Database.php';
@@ -228,6 +230,53 @@ class BookController {
             // Pokud by někdo zkusil přistoupit na URL napřímo bez odeslání formuláře (žlutá notifikace)
             $this->addNoticeMessage('Pro úpravu knihy je nutné odeslat formulář.');
         }
+    }
+
+        // --- Pomocná metoda pro zpracování nahrávání obrázků ---
+    protected function processImageUploads() {
+        $uploadedFiles = [];
+        
+        // Cesta ke složce, kam se budou obrázky fyzicky ukládat (relativně od index.php)
+        $uploadDir = __DIR__ . '/../../public/uploads/'; 
+        
+        // Zkontrolujeme, zda vůbec existuje adresář, pokud ne, vytvoříme ho
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        // Zkontrolujeme, zda byl odeslán alespoň jeden soubor
+        if (isset($_FILES['images']) && !empty($_FILES['images']['name'][0])) {
+            $fileCount = count($_FILES['images']['name']);
+
+            for ($i = 0; $i < $fileCount; $i++) {
+                // Pokud při nahrávání tohoto konkrétního souboru nedošlo k chybě
+                if ($_FILES['images']['error'][$i] === UPLOAD_ERR_OK) {
+                    
+                    $tmpName = $_FILES['images']['tmp_name'][$i];
+                    $originalName = basename($_FILES['images']['name'][$i]);
+                    // Zjištění koncovky (např. jpg, png)
+                    $fileExtension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+                    // Můžeme zde přidat i kontrolu povolených formátů (volitelné)
+                    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+                    if (!in_array($fileExtension, $allowedExtensions)) {
+                        continue; // Přeskočíme nepodporovaný soubor
+                    }
+
+                    // 1. Vygenerování unikátního jména pomocí aktuálního času a náhodného řetězce
+                    // např: book_64a2b1c_8f2a.jpg
+                    $newName = 'book_' . uniqid() . '_' . substr(md5(mt_rand()), 0, 4) . '.' . $fileExtension;
+                    $targetFilePath = $uploadDir . $newName;
+
+                    // 2. Fyzický přesun souboru z dočasné paměti do naší složky uploads
+                    if (move_uploaded_file($tmpName, $targetFilePath)) {
+                        // 3. Uložení POUZE NÁZVU do pole, které pak pošleme databázi
+                        $uploadedFiles[] = $newName; 
+                    }
+                }
+            }
+        }
+        return $uploadedFiles;
     }
        
 }
