@@ -1,119 +1,42 @@
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
-    <title>Knihovna - Seznam knih</title>
-</head>
-<body>
-    <header>
-        <h1>Aplikace Knihovna</h1>
-        
-        <nav>
-            <ul>
-                <!-- Poznámka: do odkazu href se musí dát reálná absolutní/úplná cesta k souboru index.php -->
-                <li><a href="<?= BASE_URL ?>/index.php">Seznam knih (Domů)</a></li>
-                <li><a href="<?= BASE_URL ?>/index.php?url=book/create">Přidat novou knihu</a></li>
-            </ul>
-        </nav>
-    </header>
+<?php require_once '../app/views/layout/header.php'; ?>
 
-    <main>
-        <?php if (isset($_SESSION['messages']) && !empty($_SESSION['messages'])): ?>
-            <div class="notifications-container">
-                
-                <?php foreach ($_SESSION['messages'] as $type => $messages): ?>
-                    <?php 
-                        // Jednoduché určení barvy podle typu zprávy
-                        $color = 'black';
-                        if ($type === 'success') $color = 'green';
-                        if ($type === 'error') $color = 'red';
-                        if ($type === 'notice') $color = 'orange';
-                    ?>
-                    
-                    <?php foreach ($messages as $message): ?>
-                        <div style="color: <?= $color ?>; border: 1px solid <?= $color ?>; padding: 10px; margin-bottom: 10px;">
-                            <strong><?= htmlspecialchars($message) ?></strong>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endforeach; ?>
-                
-            </div>
-            
-            <?php 
-                // ZÁSADNÍ KROK: Po vypsání musíme zprávy ze session vymazat, 
-                // aby se nezobrazovaly při každém dalším obnovení stránky!
-                unset($_SESSION['messages']); 
-            ?>
-        <?php endif; ?>
-        
-        <h2>Dostupné knihy</h2>
-        <?php if (isset($_SESSION['messages']) && !empty($_SESSION['messages'])): ?>
-            <div class="notifications-container">
-                
-                <?php foreach ($_SESSION['messages'] as $type => $messages): ?>
-                    <?php 
-                        // Jednoduché určení barvy podle typu zprávy
-                        $color = 'black';
-                        if ($type === 'success') $color = 'green';
-                        if ($type === 'error') $color = 'red';
-                        if ($type === 'notice') $color = 'orange';
-                    ?>
-                    
-                    <?php foreach ($messages as $message): ?>
-                        <div style="color: <?= $color ?>; border: 1px solid <?= $color ?>; padding: 10px; margin-bottom: 10px;">
-                            <strong><?= htmlspecialchars($message) ?></strong>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endforeach; ?>
-                
-            </div>
-            
-            <?php 
-                // ZÁSADNÍ KROK: Po vypsání musíme zprávy ze session vymazat, 
-                // aby se nezobrazovaly při každém dalším obnovení stránky!
-                unset($_SESSION['messages']); 
-            ?>
-        <?php endif; ?>
-        <h2>Dostupné knihy</h2>
-        
-        <?php if (empty($books)): ?>
-            <p>V databázi se zatím nenachází žádné knihy.</p>
-        <?php else: ?>
-            <table>
-                <thead>
+<h2 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.75rem; font-weight: 700;">Dostupné knihy</h2>
+
+<?php if (empty($books)): ?>
+    <div class="table-container" style="padding: 3rem; text-align: center; color: var(--text-muted); font-style: italic;">
+        V databázi se zatím nenachází žádné knihy.
+    </div>
+<?php else: ?>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Název knihy</th>
+                    <th>Autor</th>
+                    <th>Rok vydání</th>
+                    <th>Cena</th>
+                    <th>Akce</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($books as $book): ?>
                     <tr>
-                        <th>ID</th>
-                        <th>Název knihy</th>
-                        <th>Autor</th>
-                        <th>Rok vydání</th>
-                        <th>Cena</th>
-                        <th>Akce</th>
+                        <td><strong>#<?= htmlspecialchars($book['id']) ?></strong></td>
+                        <td><strong><?= htmlspecialchars($book['title']) ?></strong></td>
+                        <td><?= htmlspecialchars($book['author']) ?></td>
+                        <td><?= htmlspecialchars($book['year']) ?></td>
+                        <td><?= htmlspecialchars($book['price'] ?? '0') ?> Kč</td>
+                        <td class="actions">
+                            <a href="<?= BASE_URL ?>/index.php?url=book/show/<?= $book['id'] ?>" class="action-btn btn-detail">Detail</a>
+                            <a href="<?= BASE_URL ?>/index.php?url=book/edit/<?= $book['id'] ?>" class="action-btn btn-edit">Upravit</a>
+                            <a href="<?= BASE_URL ?>/index.php?url=book/delete/<?= $book['id'] ?>" class="action-btn btn-delete" onclick="return confirm('Opravdu chcete smazat?')">Smazat</a>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($books as $book): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($book['id']) ?></td>
-                            <td><?= htmlspecialchars($book['title']) ?></td>
-                            <td><?= htmlspecialchars($book['author']) ?></td>
-                            <td><?= htmlspecialchars($book['year']) ?></td>
-                            <td><?= htmlspecialchars($book['price']) ?> Kč</td>
-                            <td>
-                                <a href="<?= BASE_URL ?>/index.php?url=book/show/<?= $book['id'] ?>">Detail</a> | 
-                                <a href="<?= BASE_URL ?>/index.php?url=book/edit/<?= $book['id'] ?>">Upravit</a> | 
-                                <a href="<?= BASE_URL ?>/index.php?url=book/delete/<?= $book['id'] ?>" onclick="return confirm('Opravdu chcete tuto knihu smazat?')">Smazat</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </main>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>
 
-    <footer>
-        <p>&copy; WA 2026 - Výukový projekt</p>
-    </footer>
-</body>
-</html>
+<?php require_once '../app/views/layout/footer.php'; ?>
