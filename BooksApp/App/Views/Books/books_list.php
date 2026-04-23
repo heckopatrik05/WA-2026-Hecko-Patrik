@@ -22,15 +22,21 @@
             <tbody>
                 <?php foreach ($books as $book): ?>
                     <tr>
-                        <td><strong>#<?= htmlspecialchars($book['id']) ?></strong></td>
-                        <td><strong><?= htmlspecialchars($book['title']) ?></strong></td>
+                        <td><?= htmlspecialchars($book['id']) ?></td>
+                        <td style="font-weight: 600; color: var(--text-dark);"><?= htmlspecialchars($book['title']) ?></td>
                         <td><?= htmlspecialchars($book['author']) ?></td>
                         <td><?= htmlspecialchars($book['year']) ?></td>
-                        <td><?= htmlspecialchars($book['price'] ?? '0') ?> Kč</td>
-                        <td class="actions">
-                            <a href="<?= BASE_URL ?>/index.php?url=book/show/<?= $book['id'] ?>" class="action-btn btn-detail">Detail</a>
-                            <a href="<?= BASE_URL ?>/index.php?url=book/edit/<?= $book['id'] ?>" class="action-btn btn-edit">Upravit</a>
-                            <a href="<?= BASE_URL ?>/index.php?url=book/delete/<?= $book['id'] ?>" class="action-btn btn-delete" onclick="return confirm('Opravdu chcete smazat?')">Smazat</a>
+                        <td><?= htmlspecialchars($book['price']) ?> Kč</td>
+                        
+                        <td>
+                            <div class="actions">
+                                <a href="<?= BASE_URL ?>/index.php?url=book/show/<?= $book['id'] ?>" class="action-btn btn-detail">Detail</a>
+                                
+                                <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] === $book['created_by']): ?>
+                                    <a href="<?= BASE_URL ?>/index.php?url=book/edit/<?= $book['id'] ?>" class="action-btn btn-edit">Upravit</a>
+                                    <a href="<?= BASE_URL ?>/index.php?url=book/delete/<?= $book['id'] ?>" onclick="return confirm('Opravdu chcete tuto knihu smazat?')" class="action-btn btn-delete">Smazat</a>
+                                <?php endif; ?>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>

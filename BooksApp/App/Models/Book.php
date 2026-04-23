@@ -18,11 +18,13 @@ class Book {
         string $isbn,
         string $description,
         string $link,
-        array $images
+        array $images,
+        int $userId // !!! ZMĚNA: NOVÝ PARAMETR PRO ID UŽIVATELE
     ): bool {
-        $sql = "INSERT INTO books (title, author, category, subcategory, year, price, isbn, description, link, images)
-                VALUES (:title, :author, :category, :subcategory, :year, :price, :isbn, :description, :link, :images)";
-        // stmt = statement
+        // !!! ZMĚNA: Přidali jsme created_by do INSERT i VALUES
+        $sql = "INSERT INTO books (title, author, category, subcategory, year, price, isbn, description, link, images, created_by)
+                VALUES (:title, :author, :category, :subcategory, :year, :price, :isbn, :description, :link, :images, :created_by)";
+        
         $stmt = $this->db->prepare($sql);
 
         return $stmt->execute([
@@ -35,7 +37,8 @@ class Book {
             ':isbn' => $isbn,
             ':description' => $description,
             ':link' => $link,
-            ':images' => json_encode($images)
+            ':images' => json_encode($images),
+            ':created_by' => $userId // !!! ZMĚNA: Předání ID do databáze
         ]);
     }
 
@@ -59,10 +62,13 @@ class Book {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     // Aktualizace existující knihy
+    // Aktualizace existující knihy
     public function update(
         $id, $title, $author, $category, $subcategory, 
-        $year, $price, $isbn, $description, $link, $images = []
+        $year, $price, $isbn, $description, $link, $images = [],
+        $userId = null // !!! ZMĚNA: Přidán nový parametr pro ID uživatele (nastaven jako volitelný pro zpětnou kompatibilitu, pokud by bylo potřeba)
     ) {
+        // !!! ZMĚNA: Přidáno updated_by do klauzule SET
         $sql = "UPDATE books 
                 SET title = :title, 
                     author = :author, 
@@ -73,12 +79,13 @@ class Book {
                     isbn = :isbn, 
                     description = :description, 
                     link = :link, 
-                    images = :images
+                    images = :images,
+                    updated_by = :updated_by 
                 WHERE id = :id";
                 
         $stmt = $this->db->prepare($sql);
 
-        // Parametrů je stejné množství jako u create, navíc je pouze :id
+        // Parametrů je stejné množství jako u create, navíc je pouze :id a :updated_by
         return $stmt->execute([
             ':id' => $id,
             ':title' => $title,
@@ -90,7 +97,8 @@ class Book {
             ':isbn' => $isbn,
             ':description' => $description,
             ':link' => $link,
-            ':images' => json_encode($images)
+            ':images' => json_encode($images),
+            ':updated_by' => $userId // !!! ZMĚNA: Předání ID do databáze pro audit
         ]);
     }
         // Trvalé smazání knihy z databáze
