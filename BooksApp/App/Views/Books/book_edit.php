@@ -26,9 +26,24 @@
                 <input type="text" id="isbn" name="isbn" value="<?= htmlspecialchars($book['isbn'] ?? '') ?>">
             </div>
             <div class="input-group">
-                <label for="category">Kategorie</label>
-                <input type="text" id="category" name="category" value="<?= htmlspecialchars($book['category'] ?? '') ?>">
+                <label for="category">Kategorie *</label>
+                <select id="category" name="category" required>
+                    <option value="">-- Vyberte kategorii --</option>
+                    
+                    <?php foreach ($categories as $cat): ?>
+                        <?php 
+                        // Zkontrolujeme, zda ID aktuálně vykreslované kategorie odpovídá ID kategorie, kterou má kniha uloženou
+                        $isSelected = ($book['category'] == $cat['id']) ? 'selected' : ''; 
+                        ?>
+                        
+                        <option value="<?= htmlspecialchars($cat['id']) ?>" <?= $isSelected ?>>
+                            <?= htmlspecialchars($cat['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                    
+                </select>
             </div>
+
             <div class="input-group">
                 <label for="subcategory">Podkategorie</label>
                 <input type="text" id="subcategory" name="subcategory" value="<?= htmlspecialchars($book['subcategory'] ?? '') ?>">

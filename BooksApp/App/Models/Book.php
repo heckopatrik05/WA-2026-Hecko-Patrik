@@ -11,7 +11,7 @@ class Book {
     public function create(
         string $title,
         string $author,
-        string $category,
+        int $category,
         string $subcategory,
         int $year,
         float $price,

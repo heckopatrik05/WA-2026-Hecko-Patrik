@@ -21,8 +21,19 @@
                 <input type="text" id="isbn" name="isbn" required>
             </div>
             <div class="input-group">
-                <label for="category">Kategorie</label>
-                <input type="text" id="category" name="category">
+                <label for="category">Kategorie *</label>
+                <!-- ZMĚNA: Použití select místo input a iterace přes $categories -->
+                <select id="category" name="category" required>
+                    <option value="">-- Vyberte kategorii --</option>
+                    
+                    <?php foreach ($categories as $cat): ?>
+                        <!-- Do value ukládáme ID kategorie (to se odešle do DB), ale uživateli zobrazíme název -->
+                        <option value="<?= htmlspecialchars($cat['id']) ?>">
+                            <?= htmlspecialchars($cat['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                    
+                </select>
             </div>
             <div class="input-group">
                 <label for="subcategory">Podkategorie</label>

@@ -158,6 +158,60 @@
         .form-container { padding: 2rem 1.5rem; border-radius: 16px; }
         header { flex-direction: column; gap: 1rem; text-align: center; }
     }
+
+        /* Obal pro select */
+    select {
+        position: relative;
+        width: 100%;
+    }
+
+    /* Samotný select */
+    select {
+        appearance: none; /* Odstraní ošklivý výchozí vzhled prohlížeče (Chrome/Safari/Edge/Firefox) */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        width: 100%;
+        padding: 0.6rem 2.5rem 0.6rem 1rem; /* Pravý padding je větší kvůli šipce */
+        font-size: 1rem;
+        font-family: inherit;
+        color: #334155; /* Tmavě šedý text */
+        background-color: #F8FAFC; /* Světlé pozadí odpovídající inputům */
+        border: 1px solid #CBD5E1; /* Světle šedý rámeček */
+        border-radius: 8px; /* Zaoblení rohů */
+        outline: none;
+        cursor: pointer;
+        transition: all 0.3s ease; /* Plynulá animace při najetí/kliknutí */
+
+        /* Vložení vlastní elegantní SVG šipky do pozadí */
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center; /* Zarovnání šipky doprava */
+        background-size: 1.2em; /* Velikost šipky */
+    }
+
+    /* Efekt při najetí myší (Hover) */
+    select:hover {
+        border-color: #94A3B8;
+    }
+
+    /* Efekt po kliknutí / aktivním stavu (Focus) */
+    select:focus {
+        border-color: #10B981; /* Zelená barva (emerald) pro aktivní stav */
+        box-shadow: 0 0 0 1px #10B981;
+        background-color: #ffffff; /* Mírné zesvětlení pozadí po kliknutí */
+    }
+
+    /* Pokud dojde k chybě (validace) */
+    select:invalid {
+        color: #94A3B8; /* Šedá barva pro placeholder text */
+    }
+
+    /* Volitelné: Stylování samotných option prvků (funguje jen v některých prohlížečích) */
+    select option {
+        color: #334155;
+        background-color: #ffffff;
+        padding: 10px;
+    }
     
     /* PATIČKA */
     footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.875rem; margin-top: auto; }
