@@ -1,0 +1,118 @@
+<?php
+
+class Book {
+    // Definice, že proměnná $db musí být vždy instancí třídy PDO
+    private PDO $db;
+
+    public function __construct(PDO $db) {
+        $this->db = $db;    
+    }
+
+    public function create(
+        string $title,
+        string $author,
+        int $category,
+        string $subcategory,
+        int $year,
+        float $price,
+        string $isbn,
+        string $description,
+        string $link,
+        array $images,
+        int $userId // !!! ZMĚNA: NOVÝ PARAMETR PRO ID UŽIVATELE
+    ): bool {
+        // !!! ZMĚNA: Přidali jsme created_by do INSERT i VALUES
+        $sql = "INSERT INTO books (title, author, category, subcategory, year, price, isbn, description, link, images, created_by)
+                VALUES (:title, :author, :category, :subcategory, :year, :price, :isbn, :description, :link, :images, :created_by)";
+        
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute([
+            ':title' => $title,
+            ':author' => $author,
+            ':category' => $category,
+            ':subcategory' => $subcategory ?: null,
+            ':year' => $year,
+            ':price' => $price,
+            ':isbn' => $isbn,
+            ':description' => $description,
+            ':link' => $link,
+            ':images' => json_encode($images),
+            ':created_by' => $userId // !!! ZMĚNA: Předání ID do databáze
+        ]);
+    }
+
+        // Získání všech knih z databáze (Nyní včetně názvu kategorie)
+    public function getAll() {
+        
+        // 💡 ZMĚNA: Místo "SELECT *" použijeme přesnější dotaz s JOINem
+        $sql = "SELECT books.*, categories.name AS category_name 
+                FROM books 
+                LEFT JOIN categories ON books.category = categories.id 
+                ORDER BY books.id DESC";
+                
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+        // Získání jedné konkrétní knihy podle jejího ID
+    public function getById($id) {
+        $sql = "SELECT * FROM books WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':id' => $id]);
+        
+        // Používá se fetch() místo fetchAll(), protože očekáváme maximálně jeden výsledek.
+        // Vrátí asociativní pole s daty knihy, nebo false, pokud kniha neexistuje.
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    // Aktualizace existující knihy
+    // Aktualizace existující knihy
+    public function update(
+        $id, $title, $author, $category, $subcategory, 
+        $year, $price, $isbn, $description, $link, $images = [],
+        $userId = null // !!! ZMĚNA: Přidán nový parametr pro ID uživatele (nastaven jako volitelný pro zpětnou kompatibilitu, pokud by bylo potřeba)
+    ) {
+        // !!! ZMĚNA: Přidáno updated_by do klauzule SET
+        $sql = "UPDATE books 
+                SET title = :title, 
+                    author = :author, 
+                    category = :category, 
+                    subcategory = :subcategory, 
+                    year = :year, 
+                    price = :price, 
+                    isbn = :isbn, 
+                    description = :description, 
+                    link = :link, 
+                    images = :images,
+                    updated_by = :updated_by 
+                WHERE id = :id";
+                
+        $stmt = $this->db->prepare($sql);
+
+        // Parametrů je stejné množství jako u create, navíc je pouze :id a :updated_by
+        return $stmt->execute([
+            ':id' => $id,
+            ':title' => $title,
+            ':author' => $author,
+            ':category' => $category,
+            ':subcategory' => $subcategory ?: null,
+            ':year' => $year,
+            ':price' => $price,
+            ':isbn' => $isbn,
+            ':description' => $description,
+            ':link' => $link,
+            ':images' => json_encode($images),
+            ':updated_by' => $userId // !!! ZMĚNA: Předání ID do databáze pro audit
+        ]);
+    }
+        // Trvalé smazání knihy z databáze
+    public function delete($id) {
+        $sql = "DELETE FROM books WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        
+        // Vrací true při úspěchu, false při chybě
+        return $stmt->execute([':id' => $id]);
+    }
+}
