@@ -343,27 +343,52 @@ public function delete($id = null) {
             $this->addNoticeMessage('Pro úpravu knihy je nutné odeslat formulář.');
         }
     }
-    public function addComment($bookId = null) {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $bookId && isset($_SESSION['user_id'])) {
-        $content = htmlspecialchars($_POST['content'] ?? '');
-        
-        if (!empty(trim($content))) {
-            require_once '../app/models/Database.php';
-            require_once '../app/models/Comment.php';
-            
-            $db = (new Database())->getConnection();
-            $commentModel = new Comment($db);
-            
-            $commentModel->addComment($bookId, $_SESSION['user_id'], $content);
-            $this->addSuccessMessage('Komentář byl úspěšně přidán.');
-        } else {
-            $this->addErrorMessage('Komentář nesmí být prázdný.');
-        }
+    public function show($id = null) {
+    if (!$id) {
+        header('Location: ' . BASE_URL . '/index.php');
+        exit;
     }
-    // Návrat na detail knihy
-    header('Location: ' . BASE_URL . '/index.php?url=book/show/' . $bookId);
-    exit;
+
+    require_once '../app/models/Database.php';
+    require_once '../app/models/Book.php';
+    require_once '../app/models/Comment.php'; // Nový model pro komentáře
+
+    $db = (new Database())->getConnection();
+    $bookModel = new Book($db);
+    $commentModel = new Comment($db);
+
+    $book = $bookModel->getById($id);
+    $comments = $commentModel->getByBookId($id); // Načtení komentářů z DB
+
+    if (!$book) {
+        $this->addErrorMessage('Kniha nebyla nalezena.');
+        header('Location: ' . BASE_URL . '/index.php');
+        exit;
+    }
+
+    require_once '../app/views/books/book_show.php';
 }
+    public function addComment($bookId = null) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $bookId && isset($_SESSION['user_id'])) {
+            $content = htmlspecialchars($_POST['content'] ?? '');
+            
+            if (!empty(trim($content))) {
+                require_once '../app/models/Database.php';
+                require_once '../app/models/Comment.php';
+                
+                $db = (new Database())->getConnection();
+                $commentModel = new Comment($db);
+                
+                $commentModel->addComment($bookId, $_SESSION['user_id'], $content);
+                $this->addSuccessMessage('Komentář byl úspěšně přidán.');
+            } else {
+                $this->addErrorMessage('Komentář nesmí být prázdný.');
+            }
+        }
+        // Návrat na detail knihy
+        header('Location: ' . BASE_URL . '/index.php?url=book/show/' . $bookId);
+        exit;
+    }
         // --- Pomocná metoda pro zpracování nahrávání obrázků ---
     protected function processImageUploads() {
         $uploadedFiles = [];
