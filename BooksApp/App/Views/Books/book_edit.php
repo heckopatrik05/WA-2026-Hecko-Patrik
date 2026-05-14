@@ -10,10 +10,6 @@
     <form action="<?= BASE_URL ?>/index.php?url=book/update/<?= htmlspecialchars($book['id']) ?>" method="post">
         <div class="form-grid">
             <div class="input-group full-width">
-                <label>ID v databázi (nelze měnit)</label>
-                <input type="text" value="<?= htmlspecialchars($book['id']) ?>" readonly>
-            </div>
-            <div class="input-group full-width">
                 <label for="title">Název knihy <span class="required">*</span></label>
                 <input type="text" id="title" name="title" value="<?= htmlspecialchars($book['title']) ?>" required>
             </div>
@@ -27,27 +23,44 @@
             </div>
             <div class="input-group">
                 <label for="category">Kategorie *</label>
-                <select id="category" name="category" required>
-                    <option value="">-- Vyberte kategorii --</option>
-                    
-                    <?php foreach ($categories as $cat): ?>
-                        <?php 
-                        // Zkontrolujeme, zda ID aktuálně vykreslované kategorie odpovídá ID kategorie, kterou má kniha uloženou
-                        $isSelected = ($book['category'] == $cat['id']) ? 'selected' : ''; 
-                        ?>
+                <div class="custom-select-wrapper">
+                    <select id="category" name="category" required class="custom-select">
+                        <option value="" disabled>-- Vyberte kategorii --</option>
                         
-                        <option value="<?= htmlspecialchars($cat['id']) ?>" <?= $isSelected ?>>
-                            <?= htmlspecialchars($cat['name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                    
-                </select>
+                        <?php foreach ($categories as $cat): ?>
+                            <?php 
+                            // Bezpečná kontrola existence $book a porovnání ID
+                            $isSelected = (isset($book['category']) && $book['category'] == $cat['id']) ? 'selected' : ''; 
+                            ?>
+                            
+                            <option value="<?= htmlspecialchars($cat['id']) ?>" <?= $isSelected ?>>
+                                <?= htmlspecialchars($cat['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                        
+                    </select>
+                </div>
             </div>
-
             <div class="input-group">
                 <label for="subcategory">Podkategorie</label>
-                <input type="text" id="subcategory" name="subcategory" value="<?= htmlspecialchars($book['subcategory'] ?? '') ?>">
+                <div class="custom-select-wrapper">
+                    <select id="subcategory" name="subcategory" class="custom-select">
+                        <option value="" disabled>-- Vyberte podkategorii --</option>
+                        
+                        <?php foreach ($subcategories as $subcat): ?>
+                            <?php 
+                            // Ošetření selected atributu pro paměť formuláře
+                            $isSelectedSub = (isset($book['subcategory']) && $book['subcategory'] == $subcat['id']) ? 'selected' : ''; 
+                            ?>
+                            <option value="<?= htmlspecialchars($subcat['id']) ?>" <?= $isSelectedSub ?>>
+                                <?= htmlspecialchars($subcat['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                        
+                    </select>
+                </div>
             </div>
+                            
             <div class="input-group">
                 <label for="year">Rok <span class="required">*</span></label>
                 <input type="number" id="year" name="year" value="<?= htmlspecialchars($book['year']) ?>" required>

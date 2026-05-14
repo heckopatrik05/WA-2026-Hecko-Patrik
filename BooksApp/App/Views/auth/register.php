@@ -27,17 +27,49 @@
                                class="w-full bg-slate-900/50 border border-slate-600 rounded-md px-4 py-2 text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors">
                     </div>
 
-                    <div>
-                        <label for="password" class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Heslo <span class="text-rose-500">*</span></label>
-                        <input type="password" id="password" name="password" required 
-                               class="w-full bg-slate-900/50 border border-slate-600 rounded-md px-4 py-2 text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors">
+                    <div class="relative">
+                        <label for="password" class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Heslo</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="password" id="password" name="password" required 
+                                class="w-full bg-slate-900/50 border border-slate-600 rounded-md px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors">
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; color: #94a3b8; font-size: 0.8rem; white-space: nowrap;">
+                                <input type="checkbox" onclick="togglePassword('password')"> Ukaž heslo
+                            </label>
+                        </div>
                     </div>
 
-                    <div>
-                        <label for="password_confirm" class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Potvrzení hesla <span class="text-rose-500">*</span></label>
-                        <input type="password" id="password_confirm" name="password_confirm" required 
-                               class="w-full bg-slate-900/50 border border-slate-600 rounded-md px-4 py-2 text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors">
+                    <script>
+                        function togglePassword(inputId) {
+                            var x = document.getElementById(inputId);
+                            if (x.type === "password") {
+                                x.type = "text";
+                            } else {
+                                x.type = "password";
+                            }
+                        }
+                    </script>
+
+                    <div class="relative">
+                        <label for="password-confirm" class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Potvrzení hesla</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="password" id="password-confirm" name="password_confirm" required 
+                                class="w-full bg-slate-900/50 border border-slate-600 rounded-md px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors">
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; color: #94a3b8; font-size: 0.8rem; white-space: nowrap;">
+                                <input type="checkbox" onclick="togglePassword('password-confirm')"> Ukaž heslo
+                            </label>
+                        </div>
                     </div>
+
+                    <script>
+                        function togglePassword(inputId) {
+                            var x = document.getElementById(inputId);
+                            if (x.type === "password") {
+                                x.type = "text";
+                            } else {
+                                x.type = "password-confirm";
+                            }
+                        }
+                    </script>
 
                     <div class="md:col-span-2 mt-4">
                         <h3 class="text-blue-400 text-xs font-bold uppercase tracking-widest border-b border-slate-700 pb-2 mb-4">Osobní údaje (Volitelné)</h3>

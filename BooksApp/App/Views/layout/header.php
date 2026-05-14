@@ -212,7 +212,25 @@
         background-color: #ffffff;
         padding: 10px;
     }
+
+    /* Speciální tlačítka pro administrátora u cizích knih */
+    .btn-edit-admin { background-color: #FEF08A; color: #854D0E; border: 1px dashed #EAB308; }
+    .btn-edit-admin:hover { background-color: #FDE047; }
+    .btn-delete-admin { background-color: #FECACA; color: #991B1B; border: 1px dashed #EF4444; }
+    .btn-delete-admin:hover { background-color: #FCA5A5; color: #7F1D1D; }
+    i { font-size: 0.75rem; color: #7F1D1D; }
     
+    /* Zmenšení mezer ve formulářích pro Full HD zobrazení */
+    main { padding: 1.5rem 1rem; }
+    .form-container { padding: 1.5rem 2rem; }
+    .form-header { margin-bottom: 1.5rem; padding-bottom: 1rem; }
+    .form-grid { gap: 1rem; }
+    input[type="text"], input[type="number"], input[type="email"], input[type="password"], textarea, select { 
+        padding: 0.6rem 1rem; 
+    }
+    .file-dropzone { padding: 1.5rem 1rem; }
+    .submit-btn { padding: 0.8rem 2rem; }
+
     /* PATIČKA */
     footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.875rem; margin-top: auto; }
 </style>
@@ -235,6 +253,11 @@
                         </li>
                         <li class="text-slate-400 text-sm">
                             Ahoj, <span class="text-white font-semibold tracking-wide"><?= htmlspecialchars($_SESSION['user_name']) ?></span>
+                            <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
+                                <span class="bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded shadow-inner font-bold uppercase tracking-wider">
+                                    <i>(Admin)</i>
+                                </span>
+                            <?php endif; ?>
                         </li>
                         <li>
                             <a href="<?= BASE_URL ?>/index.php?url=auth/logout" class="text-rose-400 hover:text-white transition-colors text-sm uppercase tracking-wider font-medium">

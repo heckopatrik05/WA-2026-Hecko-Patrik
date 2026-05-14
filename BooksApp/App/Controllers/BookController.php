@@ -23,29 +23,29 @@ class BookController {
 
     // 1. Zobrazení formuláře pro přidání nové knihy
     // Zobrazení formuláře pro přidání knihy
+    // Zobrazení formuláře pro přidání knihy
     public function create() {
-        // Kontrola přihlášení (pokud ji už máte zavedenou)
         if (!isset($_SESSION['user_id'])) {
             $this->addErrorMessage('Pro přidání knihy se musíte nejprve přihlásit.');
             header('Location: ' . BASE_URL . '/index.php?url=auth/login');
             exit;
         }
-
-        // ZMĚNA: Načtení databáze a nového modelu Category
+        
         require_once '../app/models/Database.php';
         require_once '../app/models/Category.php';
-
-        $database = new Database();
-        $db = $database->getConnection();
-
-        // ZMĚNA: Získání seznamu kategorií
+        require_once '../app/models/Subcategory.php'; // Načtení modelu subkategorií
+        
+        $db = (new Database())->getConnection();
+        
         $categoryModel = new Category($db);
         $categories = $categoryModel->getAllCategories();
-
-        // V šabloně book_create.php nyní budeme mít k dispozici pole $categories
+        
+        // Získání subkategorií
+        $subcategoryModel = new Subcategory($db);
+        $subcategories = $subcategoryModel->getAll();
+        
         require_once '../app/views/books/book_create.php';
     }
-
     // 2. Zpracování dat odeslaných z formuláře
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -64,7 +64,8 @@ class BookController {
             $author = htmlspecialchars($_POST['author'] ?? '');
             $isbn = htmlspecialchars($_POST['isbn'] ?? '');
             $category = (int)($_POST['category'] ?? 0);
-            $subcategory = htmlspecialchars($_POST['subcategory'] ?? '');
+            // Zachytíme odeslané ID a přetypujeme jej na (int). Pokud není vybráno nic, nastavíme např. 0 nebo null.
+            $subcategory = isset($_POST['subcategory']) ? (int)$_POST['subcategory'] : null;
             $year = (int)($_POST['year'] ?? 0);
             $price = (float)($_POST['price'] ?? 0);
             $link = htmlspecialchars($_POST['link'] ?? '');
@@ -160,12 +161,16 @@ public function delete($id = null) {
         exit;
     }
 
-    // Ověříme, zda je aktuálně přihlášený uživatel autorem záznamu.
-    if ($book['created_by'] !== $_SESSION['user_id']) {
-        $this->addErrorMessage('Nemáte oprávnění smazat tuto knihu, protože nejste jejím autorem.');
-        header('Location: ' . BASE_URL . '/index.php');
-        exit;
-    }
+
+    // 💡 ZMĚNA: Zjistíme, zda je přihlášený uživatel admin
+        $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
+
+        // 🛡️ ZMĚNA: Vyhodíme uživatele POKUD NENÍ autor A ZÁROVEŇ NENÍ admin
+        if ($book['created_by'] !== $_SESSION['user_id'] && !$isAdmin) {
+            $this->addErrorMessage('Nemáte oprávnění upravovat tuto knihu.');
+            header('Location: ' . BASE_URL . '/index.php');
+            exit;
+        }
 
     // 🛡️ ZMĚNA: Teprve po úspěšném ověření totožnosti provedeme samotné smazání.
     $isDeleted = $bookModel->delete($id);
@@ -179,23 +184,31 @@ public function delete($id = null) {
 
     header('Location: ' . BASE_URL . '/index.php');
     exit;
+
+    // 💡 ZMĚNA: Zjistíme, zda je přihlášený uživatel admin
+        $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
+
+        // 🛡️ ZMĚNA: Vyhodíme uživatele POKUD NENÍ autor A ZÁROVEŇ NENÍ admin
+        if ($book['created_by'] !== $_SESSION['user_id'] && !$isAdmin) {
+            $this->addErrorMessage('Nemáte oprávnění upravovat tuto knihu.');
+            header('Location: ' . BASE_URL . '/index.php');
+            exit;
+        }
 }
 
         // 4. Zobrazení formuláře pro úpravu existující knihy
         // 4. Zobrazení formuláře pro úpravu existující knihy
+    // 4. Zobrazení formuláře pro úpravu existující knihy
     public function edit($id = null) {
-        // 🔒 !!! ZMĚNA: Kontrola, zda je uživatel přihlášen. 
-        // Pokud není, nepustíme ho ani k načítání dat z DB.
+        // 🔒 Kontrola, zda je uživatel přihlášen. 
         if (!isset($_SESSION['user_id'])) {
             $this->addErrorMessage('Pro úpravu knihy se musíte nejprve přihlásit.');
             header('Location: ' . BASE_URL . '/index.php?url=auth/login');
             exit;
         }
         
-        
         // Kontrola, zda bylo v URL vůbec předáno nějaké ID
         if (!$id) {
-            // Vyvolání červené notifikace pro kritickou chybu
             $this->addErrorMessage('Nebylo zadáno ID knihy k úpravě.');
             header('Location: ' . BASE_URL . '/index.php');
             exit;
@@ -204,32 +217,44 @@ public function delete($id = null) {
         // Načtení potřebných tříd a spojení s databází
         require_once '../app/models/Database.php';
         require_once '../app/models/Book.php';
+        require_once '../app/models/Category.php'; // <-- PŘIDÁNO: Musíme načíst model Category
 
         $database = new Database();
         $db = $database->getConnection();
 
         // Získání dat o konkrétní knize
         $bookModel = new Book($db);
-        $book = $bookModel->getById($id); // Proměnná $book nyní obsahuje asociativní pole dat
+        $book = $bookModel->getById($id); 
 
-        // Bezpečnostní kontrola: Zda kniha s daným ID vůbec existuje
+        // Bezpečnostní kontrola: Zda kniha existuje a patří uživateli
         if (!$book) {
-            // Pokud knihu někdo mezitím smazal, nebo uživatel zadal do URL neexistující ID
             $this->addErrorMessage('Požadovaná kniha nebyla v databázi nalezena.');
             header('Location: ' . BASE_URL . '/index.php');
             exit;
         }
 
-        // 🛡️ !!! ZMĚNA: Kontrola vlastnictví (Autorizace).
-        // Ověříme, zda ID přihlášeného uživatele odpovídá ID autora uloženého u knihy.
-        if ($book['created_by'] !== $_SESSION['user_id']) {
-            $this->addErrorMessage('Nemáte oprávnění upravovat tuto knihu, protože nejste jejím autorem.');
+        // 💡 ZMĚNA: Zjistíme, zda je přihlášený uživatel admin
+        $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
+
+        // 🛡️ ZMĚNA: Vyhodíme uživatele POKUD NENÍ autor A ZÁROVEŇ NENÍ admin
+        if ($book['created_by'] !== $_SESSION['user_id'] && !$isAdmin) {
+            $this->addErrorMessage('Nemáte oprávnění upravovat tuto knihu.');
             header('Location: ' . BASE_URL . '/index.php');
             exit;
         }
 
-        // Pokud je vše v pořádku, načte se připravený soubor s HTML formulářem pro úpravy.
-        // Šablona bude mít automaticky přístup k proměnné $book.
+
+        // Získání seznamu všech kategorií pro Select menu
+        $categoryModel = new Category($db);
+        $categories = $categoryModel->getAllCategories();
+
+        // Získání seznamu všech subkategorií pro Select menu
+        require_once '../app/models/Subcategory.php';
+        $subcategoryModel = new Subcategory($db);
+        $subcategories = $subcategoryModel->getAll();
+
+
+        // Nyní mají obě proměnné ($book i $categories) data a pošlou se do šablony
         require_once '../app/views/books/book_edit.php';
     }
 
@@ -278,7 +303,8 @@ public function delete($id = null) {
             $author = htmlspecialchars($_POST['author'] ?? '');
             $isbn = htmlspecialchars($_POST['isbn'] ?? '');
             $category = (int)($_POST['category'] ?? 0);
-            $subcategory = htmlspecialchars($_POST['subcategory'] ?? '');
+            // Zachytíme odeslané ID a přetypujeme jej na (int). Pokud není vybráno nic, nastavíme např. 0 nebo null.
+            $subcategory = isset($_POST['subcategory']) ? (int)$_POST['subcategory'] : null;
             
             // Přetypování číselných hodnot
             $year = (int)($_POST['year'] ?? 0);
@@ -317,7 +343,27 @@ public function delete($id = null) {
             $this->addNoticeMessage('Pro úpravu knihy je nutné odeslat formulář.');
         }
     }
-
+    public function addComment($bookId = null) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $bookId && isset($_SESSION['user_id'])) {
+        $content = htmlspecialchars($_POST['content'] ?? '');
+        
+        if (!empty(trim($content))) {
+            require_once '../app/models/Database.php';
+            require_once '../app/models/Comment.php';
+            
+            $db = (new Database())->getConnection();
+            $commentModel = new Comment($db);
+            
+            $commentModel->addComment($bookId, $_SESSION['user_id'], $content);
+            $this->addSuccessMessage('Komentář byl úspěšně přidán.');
+        } else {
+            $this->addErrorMessage('Komentář nesmí být prázdný.');
+        }
+    }
+    // Návrat na detail knihy
+    header('Location: ' . BASE_URL . '/index.php?url=book/show/' . $bookId);
+    exit;
+}
         // --- Pomocná metoda pro zpracování nahrávání obrázků ---
     protected function processImageUploads() {
         $uploadedFiles = [];

@@ -25,19 +25,28 @@
                 <!-- ZMĚNA: Použití select místo input a iterace přes $categories -->
                 <select id="category" name="category" required>
                     <option value="">-- Vyberte kategorii --</option>
-                    
                     <?php foreach ($categories as $cat): ?>
                         <!-- Do value ukládáme ID kategorie (to se odešle do DB), ale uživateli zobrazíme název -->
                         <option value="<?= htmlspecialchars($cat['id']) ?>">
                             <?= htmlspecialchars($cat['name']) ?>
                         </option>
                     <?php endforeach; ?>
-                    
                 </select>
             </div>
             <div class="input-group">
                 <label for="subcategory">Podkategorie</label>
-                <input type="text" id="subcategory" name="subcategory">
+                <div class="custom-select-wrapper">
+                    <select id="subcategory" name="subcategory" class="custom-select">
+                        <option value="" disabled selected>-- Vyberte podkategorii --</option>
+                        
+                        <?php foreach ($subcategories as $subcat): ?>
+                            <option value="<?= htmlspecialchars($subcat['id']) ?>">
+                                <?= htmlspecialchars($subcat['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                        
+                    </select>
+                </div>
             </div>
             <div class="input-group">
                 <label for="year">Rok vydání <span class="required">*</span></label>
