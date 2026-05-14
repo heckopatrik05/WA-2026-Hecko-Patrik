@@ -1,5 +1,5 @@
 <?php
-// Nastartování relací pro ukládání dočasných dat (Flash zprávy)
+// Nastartování relací pro ukládání dočasných dat (Flash zprávy, přihlášení atd.)
 session_start();
 
 // Pro účely výuky a ladění na lokálním serveru (např. XAMPP) 
@@ -12,7 +12,6 @@ error_reporting(E_ALL);
 // Vypočítá absolutní cestu ke složce, ve které běží tento index.php
 $baseDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
 define('BASE_URL', $baseDir);
-echo($baseDir);
 
 // Načtení třídy routeru, která se postará o zpracování URL
 require_once '../core/App.php';

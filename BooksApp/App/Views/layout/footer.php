@@ -1,8 +1,6 @@
 </main>
-
     <footer>
-        <p>&copy; WA 2026 - Výukový projekt</p>
+        &copy; <?= date('Y') ?> HEČKO Detailing. Všechna práva vyhrazena.
     </footer>
-
 </body>
 </html>

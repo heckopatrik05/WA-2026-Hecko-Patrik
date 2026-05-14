@@ -7,7 +7,7 @@ class User {
         $this->db = $db;    
     }
 
-    // 1. Registrace nového uživatele (nyní přijímá i jméno, příjmení a přezdívku)
+    // 1. Registrace nového uživatele
     public function register(
         string $username, 
         string $email, 
@@ -16,7 +16,6 @@ class User {
         ?string $lastName = null, 
         ?string $nickname = null
     ): bool {
-        // Kontrola, zda uživatel s tímto emailem už neexistuje
         if ($this->findByEmail($email)) {
             return false; // Email už je zabraný
         }
@@ -24,7 +23,6 @@ class User {
         // ZABEZPEČENÍ: Vytvoření bezpečného hashe z hesla
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // SQL dotaz rozšířen o nová pole
         $sql = "INSERT INTO users (username, email, password, first_name, last_name, nickname) 
                 VALUES (:username, :email, :password, :first_name, :last_name, :nickname)";
         $stmt = $this->db->prepare($sql);
@@ -32,7 +30,7 @@ class User {
         return $stmt->execute([
             ':username' => $username,
             ':email' => $email,
-            ':password' => $hashedPassword, // Do DB ukládáme hash, nikoliv čisté heslo!
+            ':password' => $hashedPassword,
             ':first_name' => $firstName,
             ':last_name' => $lastName,
             ':nickname' => $nickname
@@ -45,17 +43,53 @@ class User {
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':email' => $email]);
         
-        // Vrátí pole s daty uživatele, nebo false pokud neexistuje
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    // 3. Získání uživatele podle ID (hodí se pro zobrazení profilu atd.)
+    // 3. Získání uživatele podle ID (přidán sloupec is_admin)
     public function findById(int $id) {
-        // Zde jsme také přidali nová pole, aby se nám při načtení profilu vypsalo všechno
-        $sql = "SELECT id, username, email, first_name, last_name, nickname, created_at FROM users WHERE id = :id";
+        // !!! ZMĚNA: Přidán sloupec is_admin, abychom mohli ověřit práva k mazání
+        $sql = "SELECT id, username, email, first_name, last_name, nickname, is_admin, created_at FROM users WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
         
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // 4. Aktualizace uživatelského profilu (Update z CRUD) - NOVÁ METODA
+    public function update(int $id, string $firstName, string $lastName, string $nickname, string $email): bool {
+        $sql = "UPDATE users SET 
+                first_name = :first_name, 
+                last_name = :last_name, 
+                nickname = :nickname, 
+                email = :email 
+                WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute([
+            ':id' => $id,
+            ':first_name' => $firstName,
+            ':last_name' => $lastName,
+            ':nickname' => $nickname,
+            ':email' => $email
+        ]);
+    }
+
+    // 5. Smazání uživatele (Delete z CRUD) - NOVÁ METODA
+    // Logiku, že to může udělat jen administrátor, budeme řešit v UserControlleru
+    public function delete(int $id): bool {
+        $sql = "DELETE FROM users WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        
+        return $stmt->execute([':id' => $id]);
+    }
+
+    // 6. Získání všech uživatelů (volitelné, ale hodí se administrátorovi pro správu) - NOVÁ METODA
+    public function getAll() {
+        $sql = "SELECT id, username, email, first_name, last_name, nickname, is_admin, created_at FROM users ORDER BY created_at DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

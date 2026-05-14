@@ -2,7 +2,8 @@
 
 class Database {
     private $host = "localhost";
-    private $db_name = "wa_2026_ph_01";
+    // TADY SI UPRAV NÁZEV DATABÁZE podle toho, jak sis ji pojmenoval v phpMyAdmin
+    private $db_name = "wa_2026_sem-projekt_ph"; 
     private $username = "root";
     private $password = "";
     public $conn;
@@ -10,19 +11,18 @@ class Database {
     public function getConnection() {
         
         // Odpojí připojení k databázi tím, že změní proměnnou $this->conn na null.
-        // Ukončí existující PDO objekt, což může být užitečné pro správu paměti.
         $this->conn = null;
         
         try {
-            
             // PDO (PHP Data Objects) – Bezpečné a univerzální připojení k databázi
-            // PDO je rozhraní pro práci s databázemi v PHP.
             $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
             
+            // Nastavení kódování na UTF-8, aby fungovala česká diakritika
+            $this->conn->exec("set names utf8");
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             
-            // Výpis informace o úspěšném připojení (pro testování)
-            echo "Připojení k databázi bylo úspěšné!<br>";
+            // Výpis pro testování je zakomentovaný, aby nerozbíjel přesměrování a design
+            // echo "Připojení k databázi bylo úspěšné!<br>";
             
         } catch (PDOException $exception) {
             echo "Chyba připojení: " . $exception->getMessage();
@@ -32,8 +32,8 @@ class Database {
 }
 
 // Pro otestování připojení stačí tento soubor spustit
-// Můžete tento kód zakomentovat po ověření
-$database = new Database();
+// V produkci a MVC frameworku toto volání na konci souboru nepotřebujeme, 
+// připojení si zavolá až konkrétní Controller nebo Model.
 
-// na objektu uloženém v proměnné $database zavoláme metodu getConnection()
-$database->getConnection();
+// $database = new Database();
+// $database->getConnection();
