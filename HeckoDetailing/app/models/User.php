@@ -84,12 +84,13 @@ class User {
         return $stmt->execute([':id' => $id]);
     }
 
-    // 6. Získání všech uživatelů (volitelné, ale hodí se administrátorovi pro správu) - NOVÁ METODA
+    // Získání seznamu všech uživatelů pro administrátora
     public function getAll() {
-        $sql = "SELECT id, username, email, first_name, last_name, nickname, is_admin, created_at FROM users ORDER BY created_at DESC";
+        $sql = "SELECT id, username, email, first_name, last_name, nickname, is_admin, created_at 
+                FROM users 
+                ORDER BY created_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
-        
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

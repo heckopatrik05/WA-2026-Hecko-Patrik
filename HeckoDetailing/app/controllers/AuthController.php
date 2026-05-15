@@ -91,6 +91,11 @@ class AuthController {
                 $_SESSION['is_admin'] = $user['is_admin']; 
                 $_SESSION['user_name'] = !empty($user['nickname']) ? $user['nickname'] : $user['username'];
 
+                if (isset($_POST['remember'])) {
+                    // Cookie se jmenuje 'remember_user', obsahuje ID uživatele a platí 30 dní (86400 sekund = 1 den)
+                    setcookie('remember_user', $user['id'], time() + (86400 * 30), "/");
+                }
+
                 $this->addSuccessMessage('Vítejte zpět v Hečko Detailing, ' . $_SESSION['user_name'] . '!');
                 header('Location: ' . BASE_URL . '/index.php');
                 exit;
@@ -102,12 +107,31 @@ class AuthController {
         }
     }
 
+    // Zobrazení seznamu uživatelů (pouze pro admina)
+    public function userList() {
+        // Kontrola, zda je uživatel přihlášen a je to admin
+        if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
+            header('Location: ' . BASE_URL . '/index.php');
+            exit;
+        }
+
+        require_once '../app/models/Database.php';
+        require_once '../app/models/User.php';
+        $db = (new Database())->getConnection();
+        $userModel = new User($db);
+
+        $users = $userModel->getAll();
+        require_once '../app/views/auth/user_list.php';
+    }
+
     // 5. Odhlášení uživatele
     public function logout() {
         unset($_SESSION['user_id']);
         unset($_SESSION['user_name']);
         unset($_SESSION['is_admin']);
         
+        setcookie('remember_user', '', time() - 3600, "/");
+
         $this->addSuccessMessage('Byli jste úspěšně odhlášeni.');
         header('Location: ' . BASE_URL . '/index.php');
         exit;

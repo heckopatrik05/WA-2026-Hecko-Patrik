@@ -308,6 +308,59 @@ class ZakazkaController {
         exit;
     }
 
+    // Export zakázek do CSV (Excelu) pro Administrátora
+    public function exportCsv() {
+        // Zabezpečení: Pouze pro administrátora
+        if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
+            header('Location: ' . BASE_URL . '/index.php');
+            exit;
+        }
+
+        require_once '../app/models/Database.php';
+        require_once '../app/models/Zakazka.php';
+        $db = (new Database())->getConnection();
+        $zakazkaModel = new Zakazka($db);
+
+        // Získáme případné filtry z URL
+        $search = htmlspecialchars($_GET['search'] ?? '');
+        $stavFilter = htmlspecialchars($_GET['stav'] ?? '');
+
+        // Stáhneme všechna data (bez omezení na 5 kusů pro stránkování)
+        // Předáme vysoký limit, např. 10000, abychom stáhli opravdu vše
+        $zakazky = $zakazkaModel->getAll($search, $stavFilter, 10000, 0);
+
+        // Nastavení HTTP hlaviček, aby prohlížeč věděl, že se stahuje soubor
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=zakazky_export_' . date('Y-m-d') . '.csv');
+
+        // Otevření speciálního streamu pro zápis dat přímo do prohlížeče uživatele
+        $output = fopen('php://output', 'w');
+
+        // TRIK PRO EXCEL: Přidání BOM (Byte Order Mark) hlavičky
+        // Bez tohoto by český Excel špatně zobrazil znaky jako 'č', 'ř', 'ž'
+        fputs($output, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
+
+        // 1. Zápis hlavičky sloupců (používáme středník jako oddělovač, to Excel v ČR preferuje)
+        fputcsv($output, ['ID', 'SPZ', 'Značka a model', 'Typ služby', 'Cena (Kč)', 'Stav', 'Přidal (Uživatel)', 'Popis stavu'], ';');
+
+        // 2. Zápis samotných dat do řádků
+        foreach ($zakazky as $z) {
+            fputcsv($output, [
+                $z['id'],
+                $z['spz'],
+                $z['znacka_model'],
+                $z['typ_sluzby'],
+                $z['cena'],
+                $z['stav'],
+                $z['author_name'],
+                $z['popis_stavu']
+            ], ';');
+        }
+
+        fclose($output);
+        exit;
+    }
+
     // --- Pomocná metoda pro zpracování nahrávání obrázků ---
     protected function processImageUploads() {
         $uploadedFiles = [];

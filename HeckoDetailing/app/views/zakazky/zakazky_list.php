@@ -55,6 +55,21 @@
                     Zrušit filtr
                 </a>
             <?php endif; ?>
+            <?php if (!empty($_GET['search']) || !empty($_GET['stav'])): ?>
+                <a href="<?= BASE_URL ?>/index.php" style="background: var(--bg-color); color: var(--text-muted); border: 1px solid var(--border-color); padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.2s; display: inline-block;">
+                    Zrušit filtr
+                </a>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
+                <?php 
+                    // Připravíme parametry filtru pro export URL
+                    $exportParams = "&search=" . urlencode($_GET['search'] ?? '') . "&stav=" . urlencode($_GET['stav'] ?? '');
+                ?>
+                <a href="<?= BASE_URL ?>/index.php?url=zakazka/exportCsv<?= $exportParams ?>" style="background: #10b981; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: bold; margin-left: 10px; transition: 0.2s; display: inline-block;">
+                    📥 Export do Excelu
+                </a>
+            <?php endif; ?>
         </div>
     </form>
 </div>
