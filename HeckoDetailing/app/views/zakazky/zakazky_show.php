@@ -31,7 +31,7 @@
     <div style="margin-bottom: 2rem; line-height: 1.6; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; color: var(--text-dark);">
         <div>
             <p><strong>Typ služby:</strong> <?= htmlspecialchars($zakazka['typ_sluzby']) ?></p>
-            <p><strong>Cena:</strong> <?= htmlspecialchars($zakazka['cena'] ? $zakazka['cena'] . ' Kč' : 'Zatím neurčena') ?></p>
+            <p><strong>Cena:</strong> <?= htmlspecialchars($zakazka['cena'] ? $zakazka['cena'] . ' Kč' : 'Zatím neurčena') ?></p>¨
         </div>
         <div style="grid-column: 1 / -1;">
             <p><strong>Popis stavu a poznámky:</strong><br><?= nl2br(htmlspecialchars($zakazka['popis_stavu'] ?: 'Bez dalších poznámek')) ?></p>

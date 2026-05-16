@@ -30,7 +30,7 @@
         <input type="hidden" name="url" value="zakazka/index">
         
         <div style="flex: 1; min-width: 200px;">
-            <input type="text" name="search" placeholder="Hledat podle SPZ..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" style="width: 100%; padding: 0.6rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; background: var(--bg-color); color: var(--text-dark);">
+            <input type="text" name="search" id="liveSearch" placeholder="Hledat podle SPZ..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" style="width: 100%; padding: 0.6rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; background: var(--bg-color); color: var(--text-dark);">
         </div>
         
         <div style="min-width: 150px;">
@@ -138,5 +138,40 @@
         </table>
     </div>
 <?php endif; ?>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('liveSearch');
+        const tableRows = document.querySelectorAll('tbody tr');
+
+        if(searchInput) {
+            // Zavěsíme posluchač na každé stisknutí klávesy
+            searchInput.addEventListener('keyup', function(e) {
+                // Převedeme hledaný text na malá písmena
+                const term = e.target.value.toLowerCase();
+
+                // Projdeme všechny řádky v tabulce
+                tableRows.forEach(row => {
+                    // Vezmeme veškerý text v daném řádku
+                    const rowText = row.textContent.toLowerCase();
+                    
+                    // Pokud řádek obsahuje hledaný text, ukážeme ho. Jinak ho skryjeme.
+                    if(rowText.includes(term)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Zabráníme odeslání formuláře klávesou Enter (už to není potřeba)
+            searchInput.addEventListener('keydown', function(e) {
+                if(e.key === 'Enter') {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+</script>
 
 <?php require_once '../app/views/layout/footer.php'; ?>

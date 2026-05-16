@@ -38,6 +38,60 @@
         --card-shadow: 0 20px 40px -10px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.5);
     }
 
+    /* =========================================
+       LUXUSNÍ DYNAMICKÉ POZADÍ (Animovaný gradient)
+       ========================================= */
+    body {
+        /* Světlý režim - velmi jemné stříbrno-bílé přelévání */
+        background: linear-gradient(-45deg, #f8fafc, #e2e8f0, #ffffff, #f1f5f9) !important;
+        background-size: 400% 400% !important;
+        animation: gradientBG 15s ease infinite !important;
+        /* Zajištění, aby pozadí bylo i fixní při scrollování */
+        background-attachment: fixed !important; 
+    }
+    
+    [data-theme="dark"] body {
+        /* Tmavý režim - temné, hluboké modro-černé odstíny (působí jako prémiový lak auta) */
+        background: linear-gradient(-45deg, #0f172a, #1e293b, #020617, #0f172a) !important;
+        background-size: 400% 400% !important;
+    }
+
+    /* Samotná plynulá animace, která hýbe pozadím */
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* =========================================
+       GLASSMORPHISM (Efekt matného skla pro kontejnery)
+       ========================================= */
+    .form-container, .table-container, .auth-container {
+        /* Poloprůhledné bílé pozadí */
+        background: rgba(255, 255, 255, 0.6) !important;
+        /* Tohle dělá to kouzlo - rozmaže všechno, co je fyzicky za tímto oknem */
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        /* Jemný bílý rámeček, aby to vypadalo jako opravdová hrana skla */
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05) !important;
+    }
+
+    [data-theme="dark"] .form-container, 
+    [data-theme="dark"] .table-container, 
+    [data-theme="dark"] .auth-container {
+        /* Tmavé poloprůhledné pozadí pro Dark Mode */
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    /* Vypnutí efektu pro tisk, aby na papíře zůstala klasická čistá bílá bez stínů */
+    @media print {
+        body { background: white !important; animation: none !important; }
+        .form-container, .table-container { background: transparent !important; backdrop-filter: none !important; border: none !important; box-shadow: none !important; }
+    }
+
     /* --- TMAVÝ REŽIM (High-end sportovní interiér) --- */
     [data-theme="dark"] {
         --bg-color: #050507; /* Temná, téměř absolutní černá */
@@ -79,7 +133,7 @@
 
     /* Vlastní design posuvníku */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-track { background: rgba(150, 150, 150, 0.3); }
     ::-webkit-scrollbar-thumb { background: rgba(150, 150, 150, 0.3); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
@@ -295,6 +349,22 @@
             color: #000000 !important;
         }
 
+        /* Vykreslení QR kódu v pravém horním rohu dokumentu */
+        .qr-print-only {
+            display: block !important;
+            position: absolute !important;
+            top: 20px !important;
+            right: 20px !important;
+            text-align: center !important;
+        }
+        
+        .qr-print-only img {
+            max-width: 80px !important;
+            max-height: 80px !important;
+            border: none !important;
+            margin: 0 !important;
+        }
+
         /* 3. RESET KONTEJNERŮ */
         main { padding: 20px 0 !important; max-width: 100% !important; }
         .form-container { box-shadow: none !important; border: none !important; padding: 0 !important; background: transparent !important; }
@@ -315,8 +385,16 @@
             border: none !important; background: transparent !important; font-size: 15px !important; font-weight: 700 !important; color: #000000 !important; padding: 0 !important; margin: 0 !important; width: 100% !important; box-shadow: none !important; -webkit-appearance: none; 
         }
 
-        /* 6. SEKCE FOTOGRAFIÍ */
-        img:not(.logo) { max-width: 220px !important; max-height: 160px !important; border: 1px solid #dddddd !important; border-radius: 4px !important; margin-right: 10px !important; margin-top: 10px !important; page-break-inside: avoid; }
+        /* V tisku chceme VŽDY jen světlé logo (originál) */
+        header img.logo-light {
+            display: block !important;
+            max-height: 60px !important;
+        }
+        
+        /* Tmavé logo při tisku absolutně zakážeme */
+        header img.logo-dark {
+            display: none !important;
+        }
 
         /* 7. PROFESIONÁLNÍ PODPISOVÝ BOX DOLE */
         .form-container::after {
@@ -331,6 +409,7 @@
             font-weight: 500;
             page-break-inside: avoid;
         }
+        
     }
 
     /* =========================================
@@ -339,6 +418,50 @@
     .btn-loading { position: relative; pointer-events: none; opacity: 0.8; }
     .spinner { display: inline-block; width: 16px; height: 16px; margin-right: 8px; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #ffffff; animation: spin 0.8s linear infinite; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    .pagination-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color, #e2e8f0);
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .pagination-info {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-dark, #333);
+        opacity: 0.8;
+    }
+    .pagination-buttons {
+        display: flex;
+        gap: 5px;
+    }
+    .page-btn {
+        display: inline-block;
+        padding: 8px 14px;
+        border: 1px solid var(--border-color, #e2e8f0);
+        background: var(--card-bg, #ffffff);
+        color: var(--text-dark, #333);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+    .page-btn:hover {
+        background: var(--primary, #ff6600);
+        color: white !important;
+        border-color: var(--primary, #ff6600);
+    }
+    .page-btn.active {
+        background: var(--primary, #ff6600);
+        color: white !important;
+        border-color: var(--primary, #ff6600);
+        cursor: default;
+    }
 </style>
 <script>
     // Tento kód se spustí okamžitě při načítání hlavičky, aby se zabránilo probliknutí
@@ -389,7 +512,10 @@
         <a href="<?= BASE_URL ?>/index.php">
             <img src="<?= BASE_URL ?>/images/Logo.png" class="logo logo-light" alt="HEČKO Detailing">
             <img src="<?= BASE_URL ?>/images/Logo2.png" class="logo logo-dark" alt="HEČKO Detailing">
+        </div>
         </a>
+
+       
         
         <nav>
             <ul>

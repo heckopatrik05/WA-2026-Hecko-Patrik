@@ -38,7 +38,7 @@ class Zakazka {
     }
 
     // Získání zakázek z databáze (s filtrem a stránkováním)
-    public function getAll($search = '', $stav = '', $limit = 5, $offset = 0) {
+    public function getAll($search = '', $stav = '', $limit = 100, $offset = 0) {
         $sql = "SELECT zakazky.*, users.username AS author_name 
                 FROM zakazky 
                 LEFT JOIN users ON zakazky.user_id = users.id 
