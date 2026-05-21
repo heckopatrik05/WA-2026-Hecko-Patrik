@@ -25,6 +25,7 @@
     </div>
 <?php endif; ?>
 
+
 <div style="background: var(--card-bg); padding: 1rem 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;" class="print-hide">
     <form method="GET" action="<?= BASE_URL ?>/index.php" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; width: 100%;">
         <input type="hidden" name="url" value="zakazka/index">
@@ -50,11 +51,6 @@
             <button type="submit" style="background: var(--primary-gradient); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;">
                 Filtrovat
             </button>
-            <?php if (!empty($_GET['search']) || !empty($_GET['stav'])): ?>
-                <a href="<?= BASE_URL ?>/index.php" style="background: var(--bg-color); color: var(--text-muted); border: 1px solid var(--border-color); padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.2s; display: inline-block;">
-                    Zrušit filtr
-                </a>
-            <?php endif; ?>
             <?php if (!empty($_GET['search']) || !empty($_GET['stav'])): ?>
                 <a href="<?= BASE_URL ?>/index.php" style="background: var(--bg-color); color: var(--text-muted); border: 1px solid var(--border-color); padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.2s; display: inline-block;">
                     Zrušit filtr

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HEČKO Detailing</title>
+
     <style>
     /* =========================================
        ULTIMÁTNÍ PRÉMIOVÝ DESIGN - HEČKO DETAILING
@@ -462,6 +463,40 @@
         border-color: var(--primary, #ff6600);
         cursor: default;
     }
+
+    /* =========================================
+   PRELOADER (Načítací obrazovka)
+   ========================================= */
+#preloader {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(15, 23, 42, 0.95); /* Tmavé sklo */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 9999;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.spinner {
+    width: 60px; 
+    height: 60px;
+    border: 5px solid rgba(249, 115, 22, 0.2);
+    border-top-color: var(--primary); /* Tvoje oranžová */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { 
+    100% { transform: rotate(360deg); } 
+}
+
+
 </style>
 <script>
     // Tento kód se spustí okamžitě při načítání hlavičky, aby se zabránilo probliknutí
@@ -504,9 +539,22 @@
             localStorage.setItem('hecko-theme', targetTheme);
         });
     });
+
+    // Jakmile je celá stránka načtená, preloader plynule zmizí
+    window.addEventListener('load', function() {
+        const preloader = document.getElementById('preloader');
+        preloader.style.opacity = '0';
+        setTimeout(() => {
+            preloader.style.display = 'none';
+        }, 500);
+    });
 </script>
 </head>
 <body>
+
+    <div id="preloader">
+    <div class="spinner"></div>
+</div>
 
     <header>
         <a href="<?= BASE_URL ?>/index.php">
@@ -562,6 +610,7 @@
                 <li><a href="<?= BASE_URL ?>/index.php?url=auth/profile" style="text-decoration: none; color: var(--text-dark); font-weight: 600;">Můj profil</a></li>
                 
                 <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
+                    <li><a href="<?= BASE_URL ?>/index.php?url=sklad/index" style="color: var(--primary); font-weight: bold;">Sklad</a></li>
                     <li><a href="<?= BASE_URL ?>/index.php?url=auth/userList" style="color: #ef4444; font-weight: bold; text-decoration: none;">Správa uživatelů</a></li>
                 <?php endif; ?>
                 
