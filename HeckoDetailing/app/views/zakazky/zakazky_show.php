@@ -31,7 +31,7 @@
     <div style="margin-bottom: 2rem; line-height: 1.6; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; color: var(--text-dark);">
         <div>
             <p><strong>Typ služby:</strong> <?= htmlspecialchars($zakazka['typ_sluzby']) ?></p>
-            <p><strong>Cena:</strong> <?= htmlspecialchars($zakazka['cena'] ? $zakazka['cena'] . ' Kč' : 'Zatím neurčena') ?></p>¨
+            <p><strong>Cena:</strong> <?= htmlspecialchars($zakazka['cena'] ? $zakazka['cena'] . ' Kč' : 'Zatím neurčena') ?></p>
         </div>
         <div style="grid-column: 1 / -1;">
             <p><strong>Popis stavu a poznámky:</strong><br><?= nl2br(htmlspecialchars($zakazka['popis_stavu'] ?: 'Bez dalších poznámek')) ?></p>
@@ -66,6 +66,7 @@
                     <label for="content">Napište zprávu:</label>
                     <textarea id="content" name="content" rows="3" required placeholder="Máte dotaz nebo upřesnění k této zakázce?"></textarea>
                 </div>
+
                 <button type="submit" class="submit-btn" style="margin-top: 0.5rem; width: auto; padding: 0.6rem 1.5rem;">Odeslat komentář</button>
             </form>
         <?php else: ?>
@@ -95,7 +96,13 @@
                                 
                                 if ($isCommentOwner || $isAdmin):
                             ?>
-                                <a href="<?= BASE_URL ?>/index.php?url=zakazka/deleteComment/<?= $comment['id'] ?>" onclick="return confirm('Opravdu chcete trvale smazat tento komentář?')" style="color: var(--danger); font-size: 0.85rem; text-decoration: none; font-weight: bold; background: var(--danger-bg); padding: 4px 8px; border-radius: 4px;">Smazat</a>
+                                <div style="display: flex; gap: 8px;">
+                                    <?php if ($isCommentOwner): // Upravit může jen vlastník ?>
+                                        <a href="<?= BASE_URL ?>/index.php?url=zakazka/editComment/<?= $comment['id'] ?>" style="color: var(--primary); font-size: 0.85rem; text-decoration: none; font-weight: bold; background: rgba(255, 102, 0, 0.1); padding: 4px 8px; border-radius: 4px;">Upravit</a>
+                                    <?php endif; ?>
+                                    
+                                    <a href="<?= BASE_URL ?>/index.php?url=zakazka/deleteComment/<?= $comment['id'] ?>" onclick="return confirm('Opravdu chcete trvale smazat tento komentář?')" style="color: var(--danger); font-size: 0.85rem; text-decoration: none; font-weight: bold; background: var(--danger-bg); padding: 4px 8px; border-radius: 4px;">Smazat</a>
+                                </div>
                             <?php endif; ?>
                         </div>
                         

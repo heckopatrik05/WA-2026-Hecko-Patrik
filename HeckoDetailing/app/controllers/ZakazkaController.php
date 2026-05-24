@@ -308,6 +308,66 @@ class ZakazkaController {
         exit;
     }
 
+    // Zobrazení formuláře pro úpravu komentáře
+    public function editComment($commentId = null) {
+        if (!isset($_SESSION['user_id']) || !$commentId) {
+            header('Location: ' . BASE_URL . '/index.php');
+            exit;
+        }
+
+        require_once '../app/models/Database.php';
+        require_once '../app/models/Comment.php';
+        
+        $db = (new Database())->getConnection();
+        $commentModel = new Comment($db);
+        
+        $comment = $commentModel->getById($commentId);
+        
+        if (!$comment) {
+            header('Location: ' . BASE_URL . '/index.php');
+            exit;
+        }
+
+        // Kontrola oprávnění: Upravit může jen autor komentáře
+        if ($comment['user_id'] != $_SESSION['user_id']) {
+            $this->addErrorMessage('Můžete upravovat pouze své vlastní komentáře.');
+            header('Location: ' . BASE_URL . '/index.php?url=zakazka/show/' . $comment['zakazka_id']);
+            exit;
+        }
+
+        // Načteme pomocné view pro editaci komentáře
+        require_once '../app/views/zakazky/comment_edit.php';
+    }
+
+    // Zpracování dat z editačního formuláře komentáře
+    public function updateComment($commentId = null) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $commentId && isset($_SESSION['user_id'])) {
+            require_once '../app/models/Database.php';
+            require_once '../app/models/Comment.php';
+            
+            $db = (new Database())->getConnection();
+            $commentModel = new Comment($db);
+            
+            $comment = $commentModel->getById($commentId);
+            
+            if ($comment && $comment['user_id'] == $_SESSION['user_id']) {
+                $content = htmlspecialchars($_POST['content'] ?? '');
+                
+                if (!empty(trim($content))) {
+                    $commentModel->updateComment($commentId, $content);
+                    $this->addSuccessMessage('Komentář byl úspěšně upraven.');
+                } else {
+                    $this->addErrorMessage('Komentář nesmí být prázdný.');
+                }
+                
+                header('Location: ' . BASE_URL . '/index.php?url=zakazka/show/' . $comment['zakazka_id']);
+                exit;
+            }
+        }
+        header('Location: ' . BASE_URL . '/index.php');
+        exit;
+    }
+
     
     // Export zakázek do CSV (Excelu) pro Administrátora
     public function exportCsv() {
